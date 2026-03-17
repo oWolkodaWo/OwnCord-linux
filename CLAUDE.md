@@ -5,9 +5,7 @@ code in this repository.
 
 OwnCord is a self-hosted Windows chat platform with two
 components: a Go server (`chatserver.exe`) and a Tauri v2
-desktop client. The server is implemented. The client is
-being migrated from WPF/.NET 8 to Tauri v2
-(Rust + TypeScript).
+desktop client (Rust + TypeScript).
 
 ## Codex CLI - Code REVIEW
 
@@ -31,14 +29,8 @@ codex exec --sandbox read-only \
   client development.
 - **CLIENT-ARCHITECTURE.md** -- Tauri v2 client project
   structure, component map, store design, and conventions.
-- **MIGRATION-PLAN.md** -- Detailed phase-by-phase TODO list
-  for the WPF-to-Tauri migration.
 - **TESTING-STRATEGY.md** -- Test infrastructure, coverage
   targets, and patterns for every test type.
-- **AUDIT.md** -- Known issues found in project audit
-  (2026-03-15). All Critical/High items must be fixed.
-- **LANGUAGE-REVIEW.md** -- Framework assessment that led to
-  the Tauri v2 decision.
 
 ## Project Structure
 
@@ -53,7 +45,7 @@ OwnCord/
 │   ├── admin/static/
 │   └── migrations/
 ├── Client/
-│   ├── tauri-client/        # NEW: Tauri v2 client
+│   ├── tauri-client/        # Tauri v2 client
 │   │   ├── src-tauri/       #   Rust backend
 │   │   │   └── src/
 │   │   ├── src/             #   TypeScript frontend
@@ -66,7 +58,6 @@ OwnCord/
 │   │       ├── unit/
 │   │       ├── integration/
 │   │       └── e2e/
-│   ├── OwnCord.Client/     # LEGACY: WPF client (reference)
 │   └── ui-mockup.html      # Design source of truth
 └── docs/
 ```
@@ -101,14 +92,6 @@ npm run test:e2e                     # Playwright E2E tests
 npm run test:coverage                # with coverage report
 ```
 
-### Legacy WPF Client (reference only)
-
-```bash
-cd Client
-dotnet build OwnCord.Client/OwnCord.Client.csproj
-dotnet test OwnCord.Client.Tests/
-```
-
 ### Dev Tools
 
 ```bash
@@ -123,37 +106,9 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 ## Branch Strategy
 
 - `main` -- stable releases
-- `dev` -- current development (WPF client)
-- `tauri-migration` -- Tauri v2 client migration
+- `tauri-migration` -- active development
 
-## Client Conventions (Tauri v2)
-
-### TypeScript Frontend
-
-- Strict TypeScript: `strict: true`,
-  `noUncheckedIndexedAccess: true`
-- Immutable state updates: never mutate, always create
-  new objects
-- Discriminated unions for all WS message types
-- CSS custom properties from mockup `:root` block are the
-  single source of truth for colors/spacing
-- Component CSS files scoped per component
-- No framework (vanilla TS + DOM) unless explicitly decided
-  otherwise
-- Path aliases: `@lib/`, `@stores/`, `@components/`
-
-### Rust Backend (src-tauri)
-
-- Minimal Rust: only for native APIs that the webview
-  cannot access
-- Tauri IPC commands for: credential storage, system tray,
-  global hotkeys
-- All FFI calls wrapped in `Result` with proper error
-  handling
-- Use `tauri-plugin-*` crates where available before
-  writing custom code
-
-### Critical Rules
+## Critical Rules (always apply)
 
 - **API paths**: Always `/api/v1/*` (matches server router)
 - **WS field names**: `threshold_mode` NOT `mode` in
@@ -165,46 +120,35 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 - **Status values**: Only `online`, `idle`, `dnd`,
   `offline`. Never `invisible`.
 
-## Server Conventions (Go)
+## Conventions & Details (see canonical files)
 
-- Use standard library where possible. Minimize
-  dependencies.
-- Router: `chi`. SQLite: `modernc.org/sqlite` (pure Go).
-  WebSocket: `nhooyr.io/websocket`. WebRTC: `pion/webrtc`
-  - `pion/turn`.
-- Config via `config.yaml`; environment variable overrides.
-- Structured logging via `log/slog`.
-- Errors as JSON `{ "error": "CODE", "message": "detail" }`.
-- All input sanitized with `bluemonday`.
-- bcrypt cost 12+. Server-side session tokens in SQLite.
-- Permission bitfield checks on every handler (SCHEMA.md).
-- File uploads: validate magic bytes, reject executables,
-  strip EXIF, UUID filenames.
-- Target: `GOOS=windows GOARCH=amd64`.
+- **Client architecture & conventions**:
+  CLIENT-ARCHITECTURE.md
+- **Server spec & conventions**: CHATSERVER.md
+- **Security rules**: CHATSERVER.md (Security section)
+- **Testing requirements**: TESTING-STRATEGY.md
+- **Coverage target**: 80%+ (TDD: RED → GREEN → IMPROVE)
 
-## Security Rules
+## gstack Skills
 
-- Never trust client input -- all validation server-side.
-- Never log passwords, tokens, or message content.
-- Never expose upload directory directly.
-- Never reveal whether a username exists on failed login.
-- Rate limit everything: logins, messages, uploads, API.
-- WebSocket connections must authenticate before any data.
-- TLS on by default (self-signed generated on first run).
-- Invite-only registration.
-- Client stores tokens in Windows Credential Manager only.
+gstack is installed at `~/.claude/skills/gstack`.
 
-## Testing Requirements
+- **Web browsing**: Always use `/browse` from gstack for
+  all web browsing. Never use `mcp__claude-in-chrome__*`
+  tools.
 
-- **Coverage target**: 80%+ for all code
-- **TDD workflow**: Write tests first (RED), implement
-  (GREEN), refactor (IMPROVE)
-- **Unit tests**: Every service, store, utility function
-- **Integration tests**: Full WS message flows with mocked
-  transport
-- **E2E tests**: Login flow, chat send/receive, channel
-  switching
-- See TESTING-STRATEGY.md for full details.
+Available skills:
+
+- `/plan-ceo-review` — CEO-level plan review
+- `/plan-eng-review` — Engineering plan review
+- `/review` — Code review
+- `/ship` — Ship checklist
+- `/browse` — Headless browser for QA and browsing
+- `/qa` — QA testing
+- `/qa-only` — QA testing (no fixes)
+- `/setup-browser-cookies` — Configure browser cookies
+- `/retro` — Retrospective
+- `/document-release` — Document a release
 
 ## Zettelkasten Knowledge Base (Obsidian)
 
