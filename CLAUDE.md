@@ -121,7 +121,7 @@ OwnCord/
 │   │   │   └── src/
 │   │   ├── src/             #   TypeScript frontend
 │   │   │   ├── lib/         #     Core services (incl. livekitSession.ts,
-│   │   │   │                #       disposable.ts)
+│   │   │   │                #       connectionStats.ts, disposable.ts)
 │   │   │   ├── stores/      #     Reactive state
 │   │   │   ├── components/  #     UI components
 │   │   │   ├── pages/       #     Page layouts
@@ -212,6 +212,12 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 - **Desktop notifications**: `lib/notifications.ts` — Tauri
   plugin-notification with Web Notification API fallback.
   Taskbar flash, notification sound, @everyone suppression.
+- **Connection quality indicator**: Signal-bars icon +
+  ping text in VoiceWidget header. Clicking it expands a
+  transport statistics pane (outgoing/incoming rates,
+  packets, RTT, session totals). Polls WebRTC stats every
+  2s via `lib/connectionStats.ts`. Color-coded: green
+  (<100ms), yellow (100-200ms), red (>200ms).
 - **Compact mode**: CSS class `.compact-mode` on body
   reduces spacing, avatar sizes, and font sizes throughout.
 - **Admin IP restriction**: `/admin` routes restricted to
