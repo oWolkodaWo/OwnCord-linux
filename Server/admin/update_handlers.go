@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"syscall"
+	"path/filepath"
 	"time"
 
 	"github.com/owncord/server/updater"
